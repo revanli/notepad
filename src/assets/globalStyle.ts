@@ -1,19 +1,64 @@
 
 
+// 一行文本溢出显示省略号
+const ellipsis = () => {
+  return `
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  `
+}
+
+// 多行文本溢出显示省略号
+const blockEllipsis = (lineNum: number = 1) => {
+  return `
+    div {
+      position: relative;
+      line-height: 1.4em;
+      height: ${lineNum * 1.4}em;
+      overflow: hidden;
+    }
+    div::after {
+      content: "...";
+      font-weight: bold;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 0 .2rem 1px .45rem;
+    }
+  `
+}
+
+// 多行溢出显示省略号
+const linesEllipsis = (lineNum: number = 1) => {
+  return `
+    overflow : hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: ${lineNum};
+    -webkit-box-orient: vertical;
+  `
+}
+
+const extendClick = (offset: number = 10) => {
+  return `
+    position: relative;
+    left: 0;
+    top: 0;
+    &:before {
+      content: '';
+      position: absolute;
+      top: -${offset}px;
+      bottom: -${offset}px;
+      left: -${offset}px;
+      right: -${offset}px;
+    }
+  `
+}
+
 export default {
-  primary: '#E22342',
-  'bg-primary': '#0D0F10',
-  'bg-secondary': '#18191D',
-  'bg-teriary': '#fff',
-  'text-primary': '#fff', //略淡
-  'text-secondary': '#7E858C',
-  'text-teriary': '#c2c7cc',
-  'text-grey': '#575F66',
-  'primary-dark': '#18191D',
-  'secondary-dark': '#212428',
-  'teriary-dark': '',
-  'dark-blue': 'rgba(37, 94, 238, 1)',
-  'light-blue': 'rgba(37, 94, 238, 0.5)',
-  'primary-grey': '#222428',
-  yellow: '#FFB76B'
+  ellipsis,
+  blockEllipsis,
+  linesEllipsis,
+  extendClick
 }
