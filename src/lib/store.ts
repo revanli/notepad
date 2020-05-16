@@ -1,9 +1,6 @@
 
 
 class Storage {
-  constructor() {
-    
-  }
 
   setItem(name: string, data: any) {
     let value = null
@@ -20,7 +17,7 @@ class Storage {
     try {
       item = JSON.parse(item)
     } catch (e) {
-      item = item;
+      // item = item;
     }
     return item;
   }

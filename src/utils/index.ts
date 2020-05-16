@@ -3,7 +3,7 @@ export const timeAgo = (timestamp: number): string | undefined => {
   if (!timestamp) return
 
   function zeroize(num: number) {
-    return (String(num).length == 1 ? "0" : "") + num;
+    return (String(num).length === 1 ? "0" : "") + num;
   }
 
   if (timestamp > 9999999999) {
@@ -20,8 +20,8 @@ export const timeAgo = (timestamp: number): string | undefined => {
     m = tmDate.getMonth() + 1,
     d = tmDate.getDate();
   var H = tmDate.getHours(),
-    i = tmDate.getMinutes(),
-    s = tmDate.getSeconds();
+    i = tmDate.getMinutes();
+    // s = tmDate.getSeconds();
 
   if (timestampDiff < 60) {
     // 一分钟以内

@@ -12,7 +12,6 @@ import {
   Page,
   NodeList,
   NodeItem,
-  Thumbnail,
   EmptyContent
 } from './styles'
 
