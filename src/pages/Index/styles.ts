@@ -36,9 +36,6 @@ export const NodeItem = styled.div`
   .info {
     font-size: .24rem;
     color: #cccccc;
-    .date {
-      margin-left: .3rem;
-    }
   }
   .right {
     
@@ -49,10 +46,11 @@ export const NodeItem = styled.div`
     ${globalStyle.linesEllipsis(2)};
     line-height: 1.3em;
     margin-bottom: .13rem;
+    font-weight: bold;
   }
   .sub-title {
     font-size: .28rem;
-    color: #b2bac2;
+    color: #707070;
     ${globalStyle.linesEllipsis(2)};
     line-height: 1.3em;
     margin-bottom: .15rem;
@@ -64,4 +62,16 @@ export const Thumbnail = styled.div`
   height: ${(props: IThumbnailProps) => props.height / 100}rem;
   background-image: url(${(props: IThumbnailProps) => props.background});
   background-size: cover;
+`
+
+export const EmptyContent =  styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 60vh;
+  .icon-empty {
+    font-size: 2rem;
+    color: #ccc;
+  }
 `

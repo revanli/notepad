@@ -13,6 +13,11 @@ const routes: RouteConfig[] = [
     path: '/editor',
     component: Editor,
     exact: true
+  },
+  {
+    path: '/editor/:noteId',
+    component: Editor,
+    exact: true
   }
 ]
 

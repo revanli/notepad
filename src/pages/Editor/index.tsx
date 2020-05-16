@@ -1,9 +1,10 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { RouteConfigComponentProps } from 'react-router-config'
 import { withRouter } from 'react-router-dom'
+import md5 from 'md5'
 
 import Header from 'src/components/Header'
-import { Page, EditTitle, EditBox, BarContainer } from './styles'
+import { Page, EditTitle, EditBox } from './styles'
 import emoji from 'src/constants/emoji.json'
 import storage from 'src/lib/store'
 import Toast from 'src/components/Toast'
@@ -30,14 +31,16 @@ const defaulText = `<h3>济南的冬天</h3>
 <p>（图为大明湖雪景）</p>
 <p><br/></p>`
 
-const RichEditor: React.FC<IIndexProps> = () => {
+const RichEditor: React.FC<IIndexProps> = ({history, match}) => {
   let _editor: any = null
 
   const [title, setTitle] = useState<string>('')
   const [editor, setEditor] = useState(_editor)
   const [toastText, setToastText] = useState('')
+  const [noteId, setNoteId] = useState('')
+  const [navTitle, setNavTitle] = useState<string>('新建')
 
-  const toastRef = useRef<any>()
+  let toastRef = useRef<any>()
 
   useEffect(() => {
     (window as any).___E.config.happy = emoji.map((item: any) => item.src)
@@ -53,44 +56,111 @@ const RichEditor: React.FC<IIndexProps> = () => {
 			'check'
 		]
     _editor.init()
-    _editor.$txt.html(defaulText)
+    genNoteId()
     setEditor(_editor)
+
+    return () => {
+      console.log('cleanUp>>>', )
+      setEditor(null)
+    }
   }, [])
 
-  const handleSaveContent = () => {
-    if (title.trim() === '') {
-      alert('请输入标题!')
+  useEffect(() => {
+    let note = getNoteById()
+    if (editor) {
+      editor.$txt.html(note.content)
+      setTitle(note.title)
+    }
+  }, [noteId])
+
+  // 获取 note id，没有则新建
+  const genNoteId = () => {
+    // 编辑模式
+    if (match.params.noteId) {
+      setNoteId(match.params.noteId)
+      setNavTitle('编辑')
     } else {
-      let prevNoteList = []
-      prevNoteList = storage.getItem('note-list') || []
+      // 新建模式
+      let newNoteId = md5(new Date().valueOf().toString())
+      setNoteId(newNoteId)
+      setNavTitle('新建')
+    }
+  }
+
+  // 根据 id 获取 note 内容，没有则使用默认 text
+  const getNoteById = () => {
+    let noteList = storage.getItem('note-list') || []
+    if (noteId) {
+      let noteIndex = noteList.findIndex((item: any) => item.noteId === noteId)
+      if (noteIndex > -1) {
+        return noteList[noteIndex]
+      }
+    }
+    return {
+      noteId: noteId,
+      content: defaulText,
+      title: '',
+      timestamp: new Date().valueOf()
+    }
+  }
+
+  // 保存编辑区内容
+  const handleSaveContent = (_noteId: string) => {
+    if (title.trim() === '') {
+      setToastText('请输入标题！')
+      toastRef.current.show()
+    } else {
+      let noteList = storage.getItem('note-list') || []
 
       try {
-        prevNoteList.push({
-          title: title,
-          content: editor.$txt.text()
-        })
-        // storage.setItem('note-list', prevNoteList)
-        console.log('aaaa>>>', toastRef)
+        // 编辑, 替换
+        let noteIndex = noteList.findIndex((item: any) => item.noteId === _noteId)
+        if (noteIndex > -1) {
+          noteList.splice(noteIndex, 1, {
+            noteId: _noteId,
+            title: title,
+            content: editor.$txt.html(),
+            contentTxt: editor.$txt.text(),
+            timestamp: new Date().valueOf()
+          })
+        } else {
+          // 新建，push
+          noteList.push({
+            noteId: _noteId,
+            title: title,
+            content: editor.$txt.html(),
+            contentTxt: editor.$txt.text(),
+            timestamp: new Date().valueOf()
+          })
+        }
+        storage.setItem('note-list', noteList)
 
         setToastText('成功保存')
         toastRef.current.show()
+        setTimeout(() => {
+          handleGoBack()
+        }, 300)
       } catch(error) {
-        console.log('error>>>', error)
         setToastText('保存失败')
         toastRef.current.show()
       }
     }
+  }
+
+  // 返回
+  const handleGoBack = () => {
+    history.goBack()
   }
   
   return (
     <Page>
       <Header
         renderLeft={() => (
-          <i className="iconfont icon-left">&#xe67d;</i>
+          <i className="iconfont icon-left" onClick={() => handleGoBack()}>&#xe67d;</i>
         )}
-        title="新建记事"
+        title={`${navTitle}记事`}
         renderRight={() => (
-          <i className="iconfont icon-save" onClick={() => handleSaveContent()}>&#xe60b;</i>
+          <i className="iconfont icon-save" onClick={() => handleSaveContent(noteId)}>&#xe60b;</i>
         )}
       />
       <div className="main-box">
