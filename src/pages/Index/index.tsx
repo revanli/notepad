@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { RouteConfigComponentProps } from 'react-router-config'
 import { withRouter } from 'react-router-dom'
 
 import storage from 'src/lib/store'
 import { timeAgo } from 'src/utils/index'
+import Toast from 'src/components/Toast'
 
 import Header from 'src/components/Header'
 
@@ -22,6 +23,9 @@ interface IIndexProps  extends RouteConfigComponentProps {
 
 const Index: React.FC<IIndexProps> = ({history, match}) => {
   const [noteList, setNoteList] = useState<any>([])
+  const [toastText, setToastText] = useState('')
+
+  let toastRef = useRef<any>()
 
   useEffect(() => {
     let storeNoteList = storage.getItem('note-list') || []
@@ -34,6 +38,31 @@ const Index: React.FC<IIndexProps> = ({history, match}) => {
       history.push('/editor')
     } else {
       history.push(`/editor/${noteId}`)
+    }
+  }
+
+  const handDeleteNote = (evt: any, noteId?: string) => {
+
+    evt.stopPropagation()
+    evt.nativeEvent.stopImmediatePropagation()
+
+    if (!noteId) {
+      setToastText('无法删除')
+      toastRef.current.show()
+      return
+    } else {
+      try {
+        let noteIndex = noteList.findIndex((item: any) => item.noteId === noteId)
+        if (noteIndex > -1) {
+          noteList.splice(noteIndex, 1)
+          storage.setItem('note-list', noteList)
+          setToastText('删除成功')
+          toastRef.current.show()
+        }
+      } catch(err) {
+        setToastText('删除失败')
+        toastRef.current.show()
+      }
     }
   }
 
@@ -62,13 +91,14 @@ const Index: React.FC<IIndexProps> = ({history, match}) => {
                     <div className="sub-title">
                       {item.contentTxt}
                     </div>
-                    <p className="info">
+                    <div className="info">
                       <span className="date">更新于: {timeAgo(item.timestamp)}</span>
-                    </p>
+                      <div className="delte" onClick={(evt) => handDeleteNote(evt, item.noteId)}>
+                        <i className="iconfont icon-delete">&#xe6b3;</i>
+                        <span>删除</span>
+                      </div>
+                    </div>
                   </div>
-                  {/* <div className="right">
-                    <Thumbnail width={200} height={200} background={item.thumbnail} className="thumbnail" />
-                  </div> */}
                 </NodeItem>
               ))
             }
@@ -79,6 +109,7 @@ const Index: React.FC<IIndexProps> = ({history, match}) => {
           </EmptyContent>
         )
       }
+      <Toast text={toastText} ref={toastRef} />
     </Page>
   )
 }

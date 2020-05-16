@@ -34,8 +34,16 @@ export const NodeItem = styled.div`
     margin-right: .3rem;
   }
   .info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: .24rem;
     color: #cccccc;
+  }
+  .delte {
+    display: inline-flex;
+    align-items: center;
+    margin-left: .5rem;
   }
   .right {
     
